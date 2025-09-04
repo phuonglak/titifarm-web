@@ -3,26 +3,15 @@ import type { NextRequest } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: any   // dùng any cho chắc, khỏi bị lỗi type
+  context: { params: Promise<{ id: string }> } // khai báo đúng type mới
 ) {
-  const { id } = await context.params;
-
-  return NextResponse.json({
-    package: {
-      id,
-      name: "Demo Package",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      priceVnd: 100000,
-      description: "Test deploy on Vercel",
-      isActive: true,
-    },
-  });
+  const { id } = await context.params; // ⚡ cần await
+  return NextResponse.json({ id, action: "GET OK" });
 }
 
 export async function PATCH(
   req: NextRequest,
-  context: any
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
   const body = await req.json();
@@ -38,11 +27,8 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: any
+  context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
-
-  return NextResponse.json({
-    message: `Deleted package ${id}`,
-  });
+  return NextResponse.json({ message: `Deleted package ${id}` });
 }
