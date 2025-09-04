@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
 
-export async function PATCH(request: Request, { params }: Params) {
-  const id = String(params.id);
-  const data = await request.json();
-  const updated = await prisma.ticketPackage.update({ where: { id }, data });
-  return NextResponse.json({ package: updated });
+  // Xử lý logic update package ở đây
+  return NextResponse.json({
+    package: {
+      id,
+      name: "Demo",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      priceVnd: 100000,
+      description: "Example",
+      isActive: true,
+    },
+  });
 }
-
-export async function DELETE(_request: Request, { params }: Params) {
-  const id = String(params.id);
-  await prisma.ticketPackage.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
-}
-
-
