@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STAFF)
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model Customer {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  fullName     String
+  phone        String
+  email        String?
+  bookings     Booking[]
+}
+
+model TicketPackage {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+  priceVnd    Int
+  isActive    Boolean  @default(true)
+  bookings    BookingTicket[]
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  code        String   @unique
+  title       String
+  description String?
+  discountPct Int?     // percentage discount (0-100)
+  discountVnd Int?     // absolute discount in VND
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean  @default(true)
+  bookings    Booking[]
+}
+
+model Booking {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  visitDate      DateTime
+  status         BookingStatus   @default(PENDING)
+  customerId     String
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  promotionId    String?
+  promotion      Promotion?      @relation(fields: [promotionId], references: [id])
+  tickets        BookingTicket[]
+  payments       Payment[]
+  totalAmountVnd Int             @default(0)
+  notes          String?
+}
+
+model BookingTicket {
+  id              String        @id @default(cuid())
+  createdAt       DateTime      @default(now())
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  ticketPackageId String
+  ticketPackage   TicketPackage @relation(fields: [ticketPackageId], references: [id])
+  quantity        Int           @default(1)
+  unitPriceVnd    Int           @default(0)
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  bookingId    String
+  booking      Booking       @relation(fields: [bookingId], references: [id])
+  method       PaymentMethod
+  amountVnd    Int
+  status       PaymentStatus @default(PENDING)
+  providerTxId String?
+  rawPayload   Json?
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+}
+
+enum PaymentMethod {
+  COD
+  VNPAY
+  MOMO
+  ZALOPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
