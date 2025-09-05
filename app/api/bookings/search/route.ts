@@ -7,10 +7,12 @@ export async function POST(request: Request) {
 
   const bookings = await prisma.booking.findMany({
     where: {
-      customer: {
-        ...(phone ? { phone: { contains: String(phone), mode: "insensitive" } } : {}),
-        ...(email ? { email: { equals: String(email) } } : {}),
-      },
+      customer: phone || email ? {
+        is: {
+          ...(phone ? { phone: { contains: String(phone) } } : {}),
+          ...(email ? { email: { equals: String(email) } } : {}),
+        }
+      } : undefined,
     },
     orderBy: { createdAt: "desc" },
     include: { tickets: { include: { ticketPackage: true } } },
