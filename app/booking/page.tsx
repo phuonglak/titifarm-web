@@ -69,8 +69,15 @@ export default function BookingPage() {
           <div className="rounded-lg border p-4 space-y-4">
             <h2 className="font-medium">Chọn gói vé</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {packages.length === 0 && (
+                <div className="text-sm text-muted-foreground">Hiện chưa có gói vé khả dụng.</div>
+              )}
               {packages.map((p) => (
-                <div key={p.id} className="rounded-md border p-3 space-y-2">
+                <div
+                  key={p.id}
+                  className="rounded-md border p-3 space-y-2 cursor-pointer"
+                  onClick={() => setQuantities((q) => ({ ...q, [p.id]: (q[p.id] || 0) + 1 }))}
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{p.name}</p>
@@ -81,16 +88,30 @@ export default function BookingPage() {
                     <div className="flex items-center gap-2">
                       <Button
                         variant="secondary"
-                        onClick={() =>
-                          setQuantities((q) => ({ ...q, [p.id]: Math.max(0, (q[p.id] || 0) - 1) }))
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuantities((q) => ({ ...q, [p.id]: Math.max(0, (q[p.id] || 0) - 1) }));
+                        }}
                       >
                         -
                       </Button>
-                      <span className="min-w-6 text-center">{quantities[p.id] || 0}</span>
+                      <input
+                        type="number"
+                        min={0}
+                        className="w-16 border rounded-md px-2 py-1 text-center"
+                        value={quantities[p.id] || 0}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          const v = Math.max(0, Number(e.target.value || 0));
+                          setQuantities((q) => ({ ...q, [p.id]: v }));
+                        }}
+                      />
                       <Button
                         variant="secondary"
-                        onClick={() => setQuantities((q) => ({ ...q, [p.id]: (q[p.id] || 0) + 1 }))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuantities((q) => ({ ...q, [p.id]: (q[p.id] || 0) + 1 }));
+                        }}
                       >
                         +
                       </Button>
@@ -131,9 +152,16 @@ export default function BookingPage() {
             <p className="text-sm text-muted-foreground">Tổng tạm tính</p>
             <p className="text-2xl font-semibold">{total.toLocaleString("vi-VN")} đ</p>
           </div>
-          <Button fullWidth disabled={submitting} onClick={submit}>
+          <Button
+            fullWidth
+            disabled={submitting || total <= 0 || !visitDate || !customer.fullName || !customer.phone}
+            onClick={submit}
+          >
             {submitting ? "Đang xử lý..." : "Đặt lịch"}
           </Button>
+          {total <= 0 && (
+            <p className="text-xs text-muted-foreground">Vui lòng chọn ít nhất 1 gói vé.</p>
+          )}
           {result && <p className="text-sm">{result}</p>}
         </aside>
       </div>
