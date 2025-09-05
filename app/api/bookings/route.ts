@@ -32,10 +32,12 @@ export async function POST(request: Request) {
   const packages = await prisma.ticketPackage.findMany({
     where: { id: { in: items.map((i) => i.packageId) }, isActive: true },
   });
-  const priceById = new Map(packages.map((p) => [p.id, p.priceVnd] as const));
+  const priceById = new Map<string, number>(
+    packages.map((p: { id: string; priceVnd: number }) => [p.id, Number(p.priceVnd)] as const)
+  );
 
-  const totalAmountVnd = items.reduce((sum, i) => {
-    const price = priceById.get(i.packageId) || 0;
+  const totalAmountVnd = items.reduce<number>((sum, i) => {
+    const price = priceById.get(i.packageId) ?? 0;
     const qty = Math.max(0, Number(i.quantity || 0));
     return sum + price * qty;
   }, 0);

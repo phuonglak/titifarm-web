@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+// Avoid importing Prisma types that may not exist in this client build
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,7 +14,7 @@ export default async function AdminBookingsPage() {
   return (
     <div className="rounded-lg border divide-y">
       <div className="p-3 font-medium">Bookings</div>
-      {bookings.map((b) => (
+      {bookings.map((b: any) => (
         <div key={b.id} className="p-3 flex items-center justify-between">
           <div>
             <p className="font-medium">{b.id}</p>
