@@ -10,4 +10,11 @@ export async function POST(request: Request) {
   return NextResponse.json({ package: created });
 }
 
+export async function GET() {
+  const packages = await prisma.ticketPackage.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+  return NextResponse.json({ packages });
+}
+
 

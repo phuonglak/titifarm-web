@@ -5,9 +5,15 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "vercel-build": "prisma generate && prisma db push && next build --turbopack",
+    "prebuild": "prisma generate",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "db:deploy": "prisma migrate deploy",
+    "db:migrate": "prisma migrate dev --name init",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
@@ -22,7 +28,10 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.1",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
